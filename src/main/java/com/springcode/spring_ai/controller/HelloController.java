@@ -1,8 +1,11 @@
 package com.springcode.spring_ai.controller;
 
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.ai.chat.messages.SystemMessage;
+import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,6 +43,7 @@ public class HelloController {
                 Please return the answer in html format.
                 """;
 
+        // PromptTemplate template = new PromptTemplate(message);
         PromptTemplate template = new PromptTemplate(celebDetailPrompt);
         
         Prompt prompt = template.create(
@@ -55,5 +59,33 @@ public class HelloController {
                 .getOutput()
                 .getText();
     }
+
+    @GetMapping("/sport")
+    public String getSportDetail(@RequestParam String name) {
+        String userMessage = """
+                List the details of the Sport %s along with their Rules and Regulations.
+                Show the details in the readable format. Please return answer in html format.
+                """;
+        String systemMessage = """
+                You are a smart Virtual Assistant.
+                Your task is to give the details about the Sports.
+                If someone ask about something else and you do not know
+                Just say that you do not know the answer.
+                """;
+
+        UserMessage userPrompt = new UserMessage(String.format(userMessage, name));
+        SystemMessage systemPrompt = new SystemMessage(systemMessage);
+
+        Prompt prompt = new Prompt(List.of(userPrompt, systemPrompt));
+
+        return chatClient
+                .prompt(prompt)
+                .call()
+                .chatResponse()
+                .getResult()
+                .getOutput()
+                .getText();
+    }
+    
     
 }
