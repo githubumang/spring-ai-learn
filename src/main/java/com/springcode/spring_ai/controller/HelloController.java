@@ -8,11 +8,15 @@ import org.springframework.ai.chat.messages.SystemMessage;
 import org.springframework.ai.chat.messages.UserMessage;
 import org.springframework.ai.chat.prompt.Prompt;
 import org.springframework.ai.chat.prompt.PromptTemplate;
+import org.springframework.ai.converter.BeanOutputConverter;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.Resource;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.springcode.spring_ai.model.Player;
 
 @RestController
 public class HelloController {
@@ -68,7 +72,7 @@ public class HelloController {
                 """;
         String systemMessage = """
                 You are a smart Virtual Assistant.
-                Your task is to give the details about the Sports.
+                Your task is to give the details about the Sports or something connected to Sports only.
                 If someone ask about something else and you do not know
                 Just say that you do not know the answer.
                 """;
@@ -85,6 +89,31 @@ public class HelloController {
                 .getResult()
                 .getOutput()
                 .getText();
+    }
+
+    @GetMapping("/player")
+    public List<Player> sportPlayers(@RequestParam String sport) {
+        BeanOutputConverter<List<Player>> converter = new BeanOutputConverter<>(new ParameterizedTypeReference<List<Player>>() {});
+        String message = """
+                Generate a list of Career achievements for the sportsperson in sport: {sport} 
+                Include the Player as the key and achievements as the value for it.
+                {format}
+                """;
+
+        PromptTemplate template = new PromptTemplate(message);
+
+        Prompt prompt = template.create(
+            Map.of("sport",sport, "format", converter.getFormat())
+        );
+
+        return converter.convert(chatClient
+                .prompt(prompt)
+                .call()
+                .chatResponse()
+                .getResult()
+                .getOutput()
+                .getText());
+                
     }
     
     
