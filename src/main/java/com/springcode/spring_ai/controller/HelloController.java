@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.springcode.spring_ai.model.Achievements;
 import com.springcode.spring_ai.model.Player;
 
 @RestController
@@ -42,10 +43,10 @@ public class HelloController {
 
     @GetMapping("/celeb")
     public String getCelebDetails(@RequestParam String name ) {
-        String message ="""
-                List the details of the Famous personality {name} along with their Carrier achievements.
-                Please return the answer in html format.
-                """;
+        // String message ="""
+        //         List the details of the Famous personality {name} along with their Carrier achievements.
+        //         Please return the answer in html format.
+        //         """;
 
         // PromptTemplate template = new PromptTemplate(message);
         PromptTemplate template = new PromptTemplate(celebDetailPrompt);
@@ -91,7 +92,7 @@ public class HelloController {
                 .getText();
     }
 
-    @GetMapping("/player")
+    @GetMapping("/sport/players")
     public List<Player> sportPlayers(@RequestParam String sport) {
         BeanOutputConverter<List<Player>> converter = new BeanOutputConverter<>(new ParameterizedTypeReference<List<Player>>() {});
         String message = """
@@ -115,6 +116,21 @@ public class HelloController {
                 .getText());
                 
     }
-    
+
+    @GetMapping("/player/achievements")
+    public List<Achievements> playerAchievements(@RequestParam String name) {
+        String message = "Return the list of achievement of the player {name}";
+
+        PromptTemplate template = new PromptTemplate(message);
+
+        Prompt prompt = template.create(
+            Map.of("name",name)
+        );
+
+        return chatClient
+                .prompt(prompt)
+                .call()
+                .entity(new ParameterizedTypeReference<List<Achievements>>() {});
+    }
     
 }
