@@ -18,14 +18,14 @@ import org.springframework.core.io.Resource;
 // @Configuration
 public class VectorLoader {
 
-    @Value("classpath:/resume.pdf")
+    @Value("classpath:/indianConstitution.pdf")
     private Resource resourcePdf;
 
     @Bean
     SimpleVectorStore simpleVectorStore (EmbeddingModel embeddingModel) {
         SimpleVectorStore vectorStore = SimpleVectorStore.builder(embeddingModel).build();
 
-        File vectorStoreFile = new File("src/main/resources/resume.json");
+        File vectorStoreFile = new File("src/main/resources/indianConstitution.json");
 
         if(vectorStoreFile.exists()) {
             System.out.println("File is already loaded");
